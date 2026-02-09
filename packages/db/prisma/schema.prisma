@@ -6,3 +6,350 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
+enum JOB_TIMELINE {
+  ONGOING
+  COMPLETED
+}
+
+enum JOB_TYPE {
+  REMOTE
+  OFFLINE
+  HYBRID
+  FREELANCE
+}
+
+enum READ_RECEIPT {
+  SEEN
+  UNSEEN
+}
+
+enum DELIEVERY_STATUS {
+  NOT_DELETED
+  DELETED
+}
+
+enum USER_TYPE {
+  INTERVIEWER
+  ORGANIZATION
+  INTERVIEWEE
+}
+
+enum JOB_STATUS {
+  UNDER_REVIEW
+  REJECTED
+  ACCEPTED
+  IN_PROCESS
+}
+
+enum PUBLISH_STATUS {
+  PUBLISHED
+  NOT_PUBLISHED
+}
+
+enum ROUND_TYPE {
+  DSA
+  LIVE_PROJECT
+  HR
+  OTHER
+}
+
+enum ROUND_STATUS {
+  COMPLETED
+  PENDING
+  UNDER_PROGRESS
+}
+
+enum INTERVIEW_STATUS {
+  IN_PROGRESS
+  ELIMINATED
+  SELECTED
+}
+
+enum PROJECT_VISIBILITY {
+  PUBLIC
+  CONNECTIONS
+  PRIVATE
+}
+
+enum PROJECT_ROLE {
+  CREATOR
+  CONTRIBUTOR
+  REVIEWER
+}
+
+enum PROJECT_MEDIA_TYPE {
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+model User {
+  id                       String                    @id @default(auto()) @map("_id") @db.ObjectId
+  name                     String
+  username                 String                    @unique
+  email                    String                    @unique
+  password                 String
+  resume                   String?                   @default("")
+  userInfo                 String?
+  githubToken              String?
+  headline                 String?
+  profileUrl               String                    @default("")
+  bannerUrl                String                    @default("")
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+  githubOAuth              Boolean                   @default(false)
+  wishlistEntries          wishlistEntry[]
+  jobApplications          JobApplication[]
+  candidateInterviewRounds CandidateInterviewRound[]
+  interviewCandidates      InterviewCandidate[]
+  projects                 Projects[]
+  projectTags              ProjectTags[]
+
+  @@index([username, email])
+}
+
+model UserExperience {
+  id                   String       @id @default(auto()) @map("_id") @db.ObjectId
+  companyName          String
+  jobTitle             String
+  jobDescription       String
+  offerLetter          String
+  completionCertifiate String
+  startDate            DateTime
+  endDate              DateTime?
+  isOngoing            JOB_TIMELINE @default(ONGOING)
+  jobType              JOB_TYPE     @default(OFFLINE)
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+}
+
+model Organization {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  username    String       @unique
+  email       String       @unique
+  password    String
+  headline    String
+  profileUrl  String       @default("")
+  bannerUrl   String       @default("")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  jobListings JobListing[]
+
+  @@index([username, email])
+}
+
+model Interviewer {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  username    String       @unique
+  email       String       @unique
+  password    String
+  userInfo    String?
+  headline    String?
+  profileUrl  String       @default("")
+  bannerUrl   String       @default("")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  wishlists   wishlist[]
+  jobListings JobListing[]
+  interviews  Interview[]
+
+  @@index([username, email])
+}
+
+model Notification {
+  id            String           @id @default(auto()) @map("_id") @db.ObjectId
+  message       String
+  from          String           @db.ObjectId
+  to            String           @db.ObjectId
+  recieptStatus READ_RECEIPT     @default(UNSEEN)
+  isDeleted     DELIEVERY_STATUS @default(NOT_DELETED)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+model Projects {
+  id              String             @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  description     String
+  coverImage      String?
+  projectUrl      String?
+  repositoryUrl   String?
+  startDate       DateTime?
+  endDate         DateTime?
+  isOngoing       Boolean            @default(false)
+  visibility      PROJECT_VISIBILITY @default(PUBLIC)
+  publishStatus   PUBLISH_STATUS     @default(PUBLISHED)
+  publishTime     DateTime?
+  ownerId         String             @db.ObjectId
+  owner           User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  skills          String[]
+  likes           ProjectLikes[]
+  comments        ProjectComments[]
+  tags            ProjectTags[]
+  wishlistEntries wishlistEntry[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  projectMedias   ProjectMedia[]
+}
+
+model ProjectTags {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  projectId String       @db.ObjectId
+  userId    String       @db.ObjectId
+  note      String?
+  role      PROJECT_ROLE @default(CONTRIBUTOR)
+  project   Projects     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([projectId, userId])
+}
+
+model ProjectLikes {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  projectId String    @db.ObjectId
+  project   Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  likedBy   String    @db.ObjectId
+  userType  USER_TYPE @default(INTERVIEWEE)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([projectId, likedBy])
+}
+
+model ProjectComments {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  projectId   String    @db.ObjectId
+  comment     String
+  commentedBy String    @db.ObjectId
+  project     Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userType    USER_TYPE @default(INTERVIEWEE)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([projectId, commentedBy])
+}
+
+model ProjectMedia {
+  id        String             @id @default(auto()) @map("_id") @db.ObjectId
+  projectId String             @db.ObjectId
+  type      PROJECT_MEDIA_TYPE
+  url       String
+  caption   String?
+  project   Projects           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime           @default(now())
+}
+
+model wishlist {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  description     String?         @default("")
+  creatorId       String          @db.ObjectId
+  creator         Interviewer     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  wishlistEntries wishlistEntry[]
+}
+
+model wishlistEntry {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  wishlistId  String   @db.ObjectId
+  candidateId String   @db.ObjectId
+  postId      String   @db.ObjectId
+  wishlist    wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  candidate   User     @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  post        Projects @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model JobListing {
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  jobDescription  String
+  jobRole         String
+  jobType         JOB_TYPE         @default(OFFLINE)
+  startDate       String
+  endDate         String
+  role            String
+  payment         String
+  interviewerId   String           @db.ObjectId
+  organizationId  String           @db.ObjectId
+  interviewer     Interviewer      @relation(fields: [interviewerId], references: [id], onDelete: Cascade)
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  jobApplications JobApplication[]
+  interviews      Interview[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model JobApplication {
+  id                  String               @id @default(auto()) @map("_id") @db.ObjectId
+  resume              String
+  candidateId         String               @db.ObjectId
+  jobListingId        String               @db.ObjectId
+  candidate           User                 @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  jobListing          JobListing           @relation(fields: [jobListingId], references: [id], onDelete: Cascade)
+  currentStatus       JOB_STATUS           @default(UNDER_REVIEW)
+  interviewCandidates InterviewCandidate[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+}
+
+model Interview {
+  id            String               @id @default(auto()) @map("_id") @db.ObjectId
+  jobListingId  String               @db.ObjectId
+  creatorId     String               @db.ObjectId
+  jobListing    JobListing           @relation(fields: [jobListingId], references: [id], onDelete: Cascade)
+  creator       Interviewer          @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  publishStatus PUBLISH_STATUS       @default(PUBLISHED)
+  publishTime   DateTime?
+  rounds        InterviewRound[]
+  candidates    InterviewCandidate[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+}
+
+model InterviewRound {
+  id          String                    @id @default(auto()) @map("_id") @db.ObjectId
+  interviewId String                    @db.ObjectId
+  name        String
+  description String
+  duration    Int
+  roundType   ROUND_TYPE
+  order       Int
+  interview   Interview                 @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  records     CandidateInterviewRound[]
+}
+
+model InterviewCandidate {
+  id               String                    @id @default(auto()) @map("_id") @db.ObjectId
+  interviewId      String                    @db.ObjectId
+  candidateId      String                    @db.ObjectId
+  jobApplicationId String                    @db.ObjectId
+  status           INTERVIEW_STATUS          @default(IN_PROGRESS)
+  interview        Interview                 @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  candidate        User                      @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  jobApplication   JobApplication            @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
+  rounds           CandidateInterviewRound[]
+  createdAt        DateTime                  @default(now())
+}
+
+model CandidateInterviewRound {
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  interviewCandidateId String             @db.ObjectId
+  roundId              String             @db.ObjectId
+  status               ROUND_STATUS       @default(PENDING)
+  score                Float?
+  feedback             String?
+  transcript           String?
+  eliminated           Boolean            @default(false)
+  startedAt            DateTime?
+  completedAt          DateTime?
+  interviewCandidate   InterviewCandidate @relation(fields: [interviewCandidateId], references: [id], onDelete: Cascade)
+  round                InterviewRound     @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  user                 User?              @relation(fields: [userId], references: [id])
+  userId               String?            @db.ObjectId
+}
