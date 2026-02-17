@@ -12,7 +12,7 @@ class OrganizationController {
       const userId = req.user?.id;
       if(!userId) throw new Error("UserId is required");
 
-      const uniqueFileName = `${file.originalname} Profile-Picture ${Date.now()}`;
+      const uniqueFileName = `${file.originalname}-Profile-Picture-${Date.now()}`;
       const fileLink = await cloudinaryService.uploadFile(file, "Profile-Picture", uniqueFileName);
 
       if(!fileLink) throw new Error("Upload Failed");
@@ -29,7 +29,7 @@ class OrganizationController {
       if(!updatedProfilePic) throw new Error("Unable to update Profile Picture");
 
       return res.status(200).json(
-        apiResponse(200, "Updated Profile Picture", null),
+        apiResponse(200, "Updated Profile Picture", updatedProfilePic),
       )
     } catch (error: any) {
       console.log(error);
@@ -44,7 +44,7 @@ class OrganizationController {
 
       if(!userId) throw new Error("User id not found");
 
-      const uniqueFileName = `${file.originalname} Banner ${Date.now()}`;
+      const uniqueFileName = `${file.originalname}-Banner-${Date.now()}`;
       const fileLink = await cloudinaryService.uploadFile(file, "Banner", uniqueFileName);
       if(!fileLink) throw new Error("Upload failed");
 
@@ -59,7 +59,7 @@ class OrganizationController {
       if(!updatedOrgBanner) throw new Error("Unable to Update banner");
 
       return res.status(200).json(
-        apiResponse(200, "Updated banner", null),
+        apiResponse(200, "Updated banner", updatedOrgBanner),
       );
     } catch (error: any) {
       console.log(error);
@@ -67,109 +67,136 @@ class OrganizationController {
     }
   }
   async updateOrganizationInfo(req: Request, res: Response) {
-    try {
-      const data = req.body as updateOrganization;
-      const userId = req.user?.id;
-      if(!userId) throw new Error("UserId is required");
-      
-      if(!data.name && !data.tagline) throw new Error("At least oe field is required");
+  try {
+    const data = req.body as updateOrganization;
+    const userId = req.user?.id;
+    if (!userId) throw new Error("UserId is required");
 
-      const dbOrganization = await prismaClient.organization.findFirst({
-        where:{
-          id:userId,
-        }
-      })
+    const name =
+      typeof data.name === "string" ? data.name.trim() : undefined;
+    const tagline =
+      typeof data.tagline === "string" ? data.tagline.trim() : undefined;
 
-      if(!dbOrganization) throw new Error("Db Organiszation");
-
-      const updatedOrganization = await prismaClient.organization.update({
-        where:{
-          id: userId,
-        },
-        data:{
-          name: data.name ?? dbOrganization.name,
-          tagline: data.tagline ?? dbOrganization.tagline,
-        }
-      });
-
-      if(!dbOrganization) throw new Error("Unable to update Organization")
-
-      return res.status(200).json(
-        apiResponse(200, "Updated Organization!", null),
-      );
-    } catch (error: any) {
-      console.log(error);
-      return res.status(200).json(apiResponse(500, error.message, null));
+    if (!name && !tagline) {
+      throw new Error("At least one non-empty field is required");
     }
+
+    const dbOrganization = await prismaClient.organization.findFirst({
+      where: { id: userId },
+    });
+
+    if (!dbOrganization) throw new Error("Organization not found");
+
+    await prismaClient.organization.update({
+      where: { id: userId },
+      data: {
+        name: name ?? dbOrganization.name,
+        tagline: tagline ?? dbOrganization.tagline,
+      },
+    });
+
+    return res
+      .status(200)
+      .json(apiResponse(200, "Updated Organization!", null));
+  } catch (error: any) {
+    console.error(error);
+    return res
+      .status(500)
+      .json(apiResponse(500, error.message, null));
+  }
   }
   async addInterviewer(req: Request, res: Response) {
-    try {
-      const data = req.body as createInterviewer;
-      const userId = req.user?.id;
+  try {
+    const data = req.body as createInterviewer;
+    const userId = req.user?.id;
 
-      if(!userId) throw new Error("UserId is required");
+    if (!userId) throw new Error("UserId is required");
 
-      if(!data.name || !data.username || !data.email || !data.password){
-        throw new Error("All fields are required");
-      }
+    const name =
+      typeof data.name === "string" ? data.name.trim() : "";
+    const username =
+      typeof data.username === "string" ? data.username.trim() : "";
+    const email =
+      typeof data.email === "string" ? data.email.trim() : "";
+    const password =
+      typeof data.password === "string" ? data.password.trim() : "";
 
-      const newInterviewer = await prismaClient.interviewer.create({
-        data:{
-          name: data.name,
-          username: data.username,
-          email: data.email,
-          password: data.password,
-          orgId: userId,
-        }
-      });
-      if(!newInterviewer) throw new Error("Unable to create interviewer");
-
-      return res.status(200).json(
-        apiResponse(200,"Created Interviewer", null),
-      )
-    } catch (error: any) {
-      console.log(error);
-      return res.status(200).json(apiResponse(500, error.message, null));
+    if (!name || !username || !email || !password) {
+      throw new Error("All fields are required and cannot be empty");
     }
+
+    const newInterviewer = await prismaClient.interviewer.create({
+      data: {
+        name,
+        username,
+        email,
+        password,
+        orgId: userId,
+      },
+    });
+
+    if (!newInterviewer) throw new Error("Unable to create interviewer");
+
+    return res.status(200).json(
+      apiResponse(200, "Created Interviewer", newInterviewer)
+    );
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json(
+      apiResponse(500, error.message, null)
+    );
+  }
   }
   async updateInterviewerDetail(req: Request, res: Response) {
-    try {
-      const data = req.body as updateInterviewer;
-      const userId = req.user?.id;
-      
-      if(!userId) throw new Error("UserId is required");
+  try {
+    const data = req.body as updateInterviewer;
+    const userId = req.user?.id;
 
-      if(!data.headline && !data.name && !data.userInfo){
-        throw new Error("At least one field is required");
-      }
+    if (!userId) throw new Error("UserId is required");
 
-      const db_Interviewer = await prismaClient.interviewer.findFirst({
-        where:{
-          orgId: userId,
-        }
-      });
-      if(!db_Interviewer) throw new Error("Db interviewer not found");
+    const name =
+      typeof data.name === "string" ? data.name.trim() : undefined;
+    const headline =
+      typeof data.headline === "string" ? data.headline.trim() : undefined;
+    const userInfo =
+      typeof data.userInfo === "string" ? data.userInfo.trim() : undefined;
 
-      const updatedInterviewer = await prismaClient.interviewer.update({
-        where:{
-          id: db_Interviewer.id,
-        },
-        data:{
-          name: data.name ?? db_Interviewer.name,
-          userInfo: data.userInfo ?? db_Interviewer.userInfo,
-          headline: data.headline ?? db_Interviewer.headline,
-        }
-      });
-
-      if(!updatedInterviewer) throw new Error("Unable to update Interviewer");
-
-      return res.status(200).json(
-        apiResponse(200, "Updated Interviewer", null),
-      );
-    } catch (error: any) {
-      console.log(error);
-      return res.status(200).json(apiResponse(500, error.message, null));
+    if (!name && !headline && !userInfo) {
+      throw new Error("At least one non-empty field is required");
     }
+
+    const db_Interviewer = await prismaClient.interviewer.findFirst({
+      where: {
+        orgId: userId,
+      },
+    });
+
+    if (!db_Interviewer) throw new Error("Db interviewer not found");
+
+    const updatedInterviewer = await prismaClient.interviewer.update({
+      where: {
+        id: db_Interviewer.id,
+      },
+      data: {
+        name: name ?? db_Interviewer.name,
+        headline: headline ?? db_Interviewer.headline,
+        userInfo: userInfo ?? db_Interviewer.userInfo,
+      },
+    });
+
+    if (!updatedInterviewer) {
+      throw new Error("Unable to update Interviewer");
+    }
+
+    return res.status(200).json(
+      apiResponse(200, "Updated Interviewer", updatedInterviewer)
+    );
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json(
+      apiResponse(500, error.message, null)
+    );
+  }
   }
   async removeInterviewer(req: Request, res: Response) {
     try {
@@ -184,7 +211,7 @@ class OrganizationController {
       if(!deletedInterviewer) throw new Error("Unable to delete");
 
       return res.status(200).json(
-        apiResponse(200, "Deleted Interviewer", null),
+        apiResponse(200, "Deleted Interviewer", deletedInterviewer),
       );
     } catch (error: any) {
       console.log(error);
@@ -197,7 +224,7 @@ class OrganizationController {
       const userId = req.user?.id;
       if(!userId) throw new Error("userId is required");
 
-      const uniqueFileName = `${file?.originalname} Profile-Picture ${Date.now()}`;
+      const uniqueFileName = `${file?.originalname}-Profile-Picture-${Date.now()}`;
       const fileLink = await cloudinaryService.uploadFile(file, "Profile-Picture", uniqueFileName);
       if(!fileLink) throw new Error("Unable to upload file");
 
@@ -213,7 +240,7 @@ class OrganizationController {
       if(!updatedProfilePic) throw new Error("Unable to update Profile Picture");
 
       return res.status(200).json(
-        apiResponse(200, "Updated Profile Picture", null),
+        apiResponse(200, "Updated Profile Picture", updatedProfilePic),
       );
     } catch (error: any) {
       console.log(error);
@@ -226,7 +253,7 @@ class OrganizationController {
       const userId = req.user?.id;
       if(!userId) throw new Error("userId is required");
 
-      const uniqueFileName = `${file?.originalname} Banner ${Date.now()}`;
+      const uniqueFileName = `${file?.originalname}-Banner-${Date.now()}`;
       const fileLink = await cloudinaryService.uploadFile(file, "Banner", uniqueFileName);
       if(!fileLink) throw new Error("Unable to upload file");
 
@@ -242,7 +269,7 @@ class OrganizationController {
       if(!updatedBanner) throw new Error("Unable to update Banner");
 
       return res.status(200).json(
-        apiResponse(200, "Updated banner", null),
+        apiResponse(200, "Updated banner", updatedBanner),
       );
     } catch (error: any) {
       console.log(error);

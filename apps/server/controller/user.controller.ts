@@ -10,50 +10,58 @@ import cloudinaryService from "../service/Cloudinary.service";
 
 class UserController {
   async updateUserInfo(req: Request, res: Response) {
-    try {
-      const data = req.body as UpdateUser;
-      const userId = req.user?.id;
+  try {
+    const data = req.body as UpdateUser;
+    const userId = req.user?.id;
 
-      if (!userId) {
-        throw new Error("User Id is required");
-      }
-      // Validated the input
-      if (!data.name && !data.headline && !data.userInfo) {
-        throw new Error("At least one field is requires");
-      }
-
-      // Check for existing user
-      const dbUser = await prismaClient.user.findUnique({
-        where: {
-          id: userId,
-        },
-      });
-
-      if (!dbUser) throw new Error("Db user not found");
-
-      // Updation of the data
-      const updatedUser = await prismaClient.user.update({
-        where: {
-          id: dbUser.id,
-        },
-        data: {
-          name: data.name ?? dbUser.name,
-          userInfo: data.userInfo ?? dbUser.userInfo,
-          headline: data.headline ?? dbUser.headline,
-        },
-      });
-      // checking if data is updated or not
-      if (!updatedUser) throw new Error("Failed User Updation");
-
-      return res.status(200).json(
-        apiResponse(200, "User data updated", {
-          updatedUser,
-        }),
-      );
-    } catch (error: any) {
-      console.log(error);
-      return res.status(200).json(apiResponse(500, error.message, null));
+    if (!userId) {
+      throw new Error("User Id is required");
     }
+
+    const name =
+      typeof data.name === "string" ? data.name.trim() : undefined;
+    const headline =
+      typeof data.headline === "string" ? data.headline.trim() : undefined;
+    const userInfo =
+      typeof data.userInfo === "string" ? data.userInfo.trim() : undefined;
+
+    // Validate at least one non-empty field
+    if (!name && !headline && !userInfo) {
+      throw new Error("At least one non-empty field is required");
+    }
+
+    // Check for existing user
+    const dbUser = await prismaClient.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!dbUser) throw new Error("Db user not found");
+
+    // Update data using trimmed values
+    const updatedUser = await prismaClient.user.update({
+      where: {
+        id: dbUser.id,
+      },
+      data: {
+        name: name ?? dbUser.name,
+        userInfo: userInfo ?? dbUser.userInfo,
+        headline: headline ?? dbUser.headline,
+      },
+    });
+
+    if (!updatedUser) throw new Error("Failed User Updation");
+
+    return res.status(200).json(
+      apiResponse(200, "User data updated", updatedUser)
+    );
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json(
+      apiResponse(500, error.message, null)
+    );
+  }
   }
   async handleResumeUpload(req: Request, res: Response) {
     try {
@@ -63,7 +71,7 @@ class UserController {
 
       if(!userId) throw new Error("User id not found");
 
-      const uniqueFileName = `${file.originalname} resume ${Date.now()}`;
+      const uniqueFileName = `${file.originalname}-resume-${Date.now()}`;
       const fileLink = await cloudinaryService.uploadFile(file, "Resume", uniqueFileName);
 
       if(!fileLink) throw new Error("Upload failed");
@@ -76,11 +84,11 @@ class UserController {
           resume: fileLink
         }
       });
-
+      // TODO: handle resume parsing
       if(!updateResume) throw new Error("Unable to update Resume");
 
       return res.status(200).json(
-        apiResponse(200, "Updated Resume", null),
+        apiResponse(200, "Updated Resume", updateResume),
       );
 
     } catch (error: any) {
@@ -95,7 +103,7 @@ class UserController {
       const userId = req.user?.id;
       if(!userId) throw new Error("User id not found");
 
-      const uniqueFileName = `${file.originalname} Profile-Picture ${Date.now()}`;
+      const uniqueFileName = `${file.originalname}-Profile-Picture-${Date.now()}`;
       const fileLink = await cloudinaryService.uploadFile(file, "ProfilePic", uniqueFileName);
       if(!fileLink) throw new Error("Upload failed");
 
@@ -111,7 +119,7 @@ class UserController {
       if(!updatedProfilePic) throw new Error("Unable to  update profile picture");
 
       return res.status(200).json(
-        apiResponse(200, "Updated Profile Picture", null),
+        apiResponse(200, "Updated Profile Picture", updatedProfilePic),
       );
 
     } catch (error: any) {
@@ -126,7 +134,7 @@ class UserController {
       const userId = req.user?.id;
       if(!userId) throw new Error("User id not found");
 
-      const uniqueFileName = `${file.originalname} Banner ${Date.now()}`;
+      const uniqueFileName = `${file.originalname}-Banner-${Date.now()}`;
       const fileLink = await cloudinaryService.uploadFile(file, "Profile-Banner", uniqueFileName);
 
       if(!fileLink) throw new Error("Upload failed");
@@ -143,7 +151,7 @@ class UserController {
       if(!updatedBanner) throw new Error("Unable to update Banner");
 
       return res.status(200).json(
-        apiResponse(200, "Updated Banner", null),
+        apiResponse(200, "Updated Banner", updatedBanner),
       );
     } catch (error: any) {
       console.log(error);
@@ -155,6 +163,7 @@ class UserController {
       const userId = req.user?.id;
       if(!userId) throw new Error("User id is required");
 
+      // TODO: joins left for complete info
       const userData = await prismaClient.user.findFirst({
         where:{
           id: userId,
@@ -164,9 +173,7 @@ class UserController {
       if(!userData) throw new Error("Unable to fetch user data");
 
       return res.status(200).json(
-        apiResponse(200, "User data found", {
-          userData,
-        }),
+        apiResponse(200, "User data found", userData),
       );
     } catch (error: any) {
       console.log(error);
@@ -174,105 +181,135 @@ class UserController {
     }
   }
   async addExperience(req: Request, res: Response) {
-    try {
-      const data = req.body as createExperience;
-      const userId = req.user?.id;
+  try {
+    const data = req.body as createExperience;
+    const userId = req.user?.id;
 
-      if (
-        !data.companyName ||
-        !data.jobTitle ||
-        !data.jobDescription ||
-        !data.startDate ||
-        !data.isOngoing ||
-        !data.jobType
-      ) {
-        throw new Error("At least one field is required");
-      }
-      if (!userId) throw new Error("User is Required");
+    if (!userId) throw new Error("User is required");
 
-      const dbUser = await prismaClient.user.findUnique({
-        where: {
-          id: userId,
-        },
-      });
+    const companyName =
+      typeof data.companyName === "string" ? data.companyName.trim() : "";
+    const jobTitle =
+      typeof data.jobTitle === "string" ? data.jobTitle.trim() : "";
+    const jobDescription =
+      typeof data.jobDescription === "string"
+        ? data.jobDescription.trim()
+        : "";
+    const jobType =
+      typeof data.jobType === "string" ? data.jobType.trim() : "";
 
-      if (!dbUser) throw new Error("User not found");
-
-      //TODO: handle file upload left
-      const createdExperience = await prismaClient.userExperience.create({
-        data: {
-          companyName: data.companyName,
-          jobTitle: data.jobTitle,
-          jobDescription: data.jobDescription,
-          startDate: data.startDate,
-          endDate: data.endDate,
-          isOngoing: data.isOngoing,
-          jobType: data.jobType,
-          userId: dbUser.id,
-        },
-      });
-
-      return res.status(200).json(
-        apiResponse(200, "Experience Created", {
-          createdExperience,
-        }),
-      );
-    } catch (error: any) {
-      console.log(error);
-      return res.status(200).json(apiResponse(500, error.message, null));
+    // Validate required fields (strings + non-strings)
+    if (
+      !companyName ||
+      !jobTitle ||
+      !jobDescription ||
+      !data.startDate ||
+      typeof data.isOngoing !== "boolean" ||
+      !jobType
+    ) {
+      throw new Error("All required fields must be provided");
     }
+
+    const dbUser = await prismaClient.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!dbUser) throw new Error("User not found");
+
+    const createdExperience = await prismaClient.userExperience.create({
+      data: {
+        companyName,
+        jobTitle,
+        jobDescription,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        isOngoing: data.isOngoing,
+        jobType: data.jobType,
+        userId: dbUser.id,
+      },
+    });
+
+    return res.status(200).json(
+      apiResponse(200, "Experience Created", createdExperience)
+    );
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json(
+      apiResponse(500, error.message, null)
+    );
+  }
   }
   async updateExperience(req: Request, res: Response) {
-    try {
-      const data = req.body as updateExperience;
-      const userId = req.user?.id;
+  try {
+    const data = req.body as updateExperience;
+    const userId = req.user?.id;
 
-      if (!userId) throw new Error("User Id is required");
+    if (!userId) throw new Error("User Id is required");
 
-      if (
-        !data.companyName &&
-        !data.jobTitle &&
-        !data.jobDescription &&
-        !data.startDate &&
-        !data.endDate &&
-        !data.jobType
-      ) {
-        throw new Error("At least one field is required");
-      }
+    const companyName =
+      typeof data.companyName === "string"
+        ? data.companyName.trim()
+        : undefined;
+    const jobTitle =
+      typeof data.jobTitle === "string"
+        ? data.jobTitle.trim()
+        : undefined;
+    const jobDescription =
+      typeof data.jobDescription === "string"
+        ? data.jobDescription.trim()
+        : undefined;
+    const jobType =
+      typeof data.jobType === "string"
+        ? data.jobType.trim()
+        : undefined;
 
-      const dbExperience = await prismaClient.userExperience.findFirst({
-        where: {
-          userId: userId,
-        },
-      });
-      if (!dbExperience) throw new Error("Db user experience not found");
-
-      const updatedExperience = await prismaClient.userExperience.update({
-        where: {
-          id: dbExperience.id,
-        },
-        data: {
-          companyName: data.companyName ?? dbExperience.companyName,
-          jobTitle: data.jobTitle ?? dbExperience.jobTitle,
-          jobDescription: data.jobDescription ?? dbExperience.jobDescription,
-          startDate: data.startDate ?? dbExperience.startDate,
-          endDate: data.endDate ?? dbExperience.endDate,
-          isOngoing: data.isOngoing ?? dbExperience.isOngoing,
-          jobType: data.jobType ?? dbExperience.jobType,
-        },
-      });
-
-      if (!updatedExperience) throw new Error("Failed Experience Updation");
-
-      return res.status(200).json(
-        apiResponse(200, "Experience updated", {
-          updatedExperience,
-        }),
-      );
-    } catch (error: any) {
-      console.log(error);
-      return res.status(200).json(apiResponse(500, error.message, null));
+    if (
+      !companyName &&
+      !jobTitle &&
+      !jobDescription &&
+      !data.startDate &&
+      !data.endDate &&
+      !jobType
+    ) {
+      throw new Error("At least one field is required");
     }
+
+    const dbExperience = await prismaClient.userExperience.findFirst({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!dbExperience) throw new Error("Db user experience not found");
+
+    const updatedExperience = await prismaClient.userExperience.update({
+      where: {
+        id: dbExperience.id,
+      },
+      data: {
+        companyName: companyName ?? dbExperience.companyName,
+        jobTitle: jobTitle ?? dbExperience.jobTitle,
+        jobDescription: jobDescription ?? dbExperience.jobDescription,
+        startDate: data.startDate ?? dbExperience.startDate,
+        endDate: data.endDate ?? dbExperience.endDate,
+        isOngoing: data.isOngoing ?? dbExperience.isOngoing,
+        jobType: data.jobType ?? dbExperience.jobType,
+      },
+    });
+
+    if (!updatedExperience) throw new Error("Failed Experience Updation");
+
+    return res.status(200).json(
+      apiResponse(200, "Experience updated", updatedExperience)
+    );
+  } catch (error: any) {
+    console.log(error);
+    return res.status(200).json(
+      apiResponse(500, error.message, null)
+    );
+  }
   }
   async deleteExperience(req: Request, res: Response) {
     try {
@@ -296,9 +333,7 @@ class UserController {
       if(!deletedExperience) throw new Error("Failed experience deletion");
 
       return res.status(200).json(
-        apiResponse(200, "Experience Deleted", {
-          deletedExperience,
-        }),
+        apiResponse(200, "Experience Deleted", deletedExperience),
       );
     } catch (error: any) {
       console.log(error);
