@@ -20,14 +20,14 @@ userRouter.post(
 userRouter.put(
   "/update-ProfilePic",
   authMiddleware,
-  upload.fields([{ name: "ProfilePic" }]),
+  upload.single("profilePic"),
   UserController.handleProfilePicUpdate
 );
 
 userRouter.put(
   "/update-banner",
   authMiddleware,
-  upload.fields([{ name: "Banner" }]),
+  upload.single("Banner"),
   UserController.handleProfileBannerUpdate
 );
 
