@@ -105,6 +105,12 @@ model User {
   resume          String?          @default("")
   userInfo        String?
   githubToken     String?
+  githubUrl       String?
+  linkedinUrl     String?
+  leetcodeUrl     String?
+  codeForcesUrl   String?
+  mediumUrl       String?
+  portfolioUrl    String?
   headline        String?
   profileUrl      String           @default("")
   bannerUrl       String           @default("")

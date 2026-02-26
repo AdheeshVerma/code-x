@@ -70,6 +70,15 @@ export interface updateExperience {
   jobType?: "REMOTE" | "OFFLINE" | "HYBRID" | "FREELANCE";
 }
 
+export interface updateUserLinks {
+  githubUrl?: string,
+  linkedinUrl?: string,
+  leetcodeUrl?: string,
+  codeForcesUrl?: string,
+  mediumUrl?: string,
+  portfolioUrl?: string,
+}
+
 export interface updateOrganization {
   name?: string;
   tagline?: string;

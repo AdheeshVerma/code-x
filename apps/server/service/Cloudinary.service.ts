@@ -1,8 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import fs from "fs/promises";
-import os from "os";
 import type { FileHandler } from "../utils/interface";
-import path from "path";
 
 class CloudinaryService implements FileHandler {
   constructor() {
@@ -18,31 +15,28 @@ class CloudinaryService implements FileHandler {
     filename: string,
   ): Promise<string | null> {
     try {
-      if (!file) throw new Error("No file provided");
+      if (!file || !file.buffer) {
+        throw new Error("File with buffer is required");
+      }
 
-      const tempDir = os.tmpdir();
-      const tempFilePath = path.join(tempDir, file.originalname);
+      const fileBase64 = file.buffer.toString("base64");
+      const dataUri = `data:${file.mimetype};base64,${fileBase64}`;
 
-      const buffer = Buffer.from(await file.buffer);
-      await fs.writeFile(tempFilePath, buffer);
-
-      const mimeType = file.mimetype;
-
-      console.log(mimeType);
-      // Upload the file to Cloudinary
-      const response = await cloudinary.uploader.upload(tempFilePath, {
-        resource_type: "auto",
-        // flags: "attachment",
+      // Upload to Cloudinary
+      const result = await cloudinary.uploader.upload(dataUri, {
         folder: folder,
-        public_id: filename,
-        access_mode: "public",
+        resource_type: "auto",
+        type: "upload",
+        filename_override: filename,
       });
 
-      await fs.unlink(tempFilePath);
+      if (!result || !result.secure_url) {
+        throw new Error("Failed to get upload response from Cloudinary");
+      }
 
-      return response.secure_url;
+      return result.secure_url;
     } catch (error) {
-      console.log(error);
+      console.log("UPLOAD FAILED:", error);
       return null;
     }
   }

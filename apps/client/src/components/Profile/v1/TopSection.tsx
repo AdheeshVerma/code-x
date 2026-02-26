@@ -1,6 +1,7 @@
 import { useColors } from "@/components/General/(Color Manager)/useColors";
 import RadarChart from "./RadarChart";
 import Skills from "./Skills";
+import Resume from "./Resume";
 
 export default function TopSection() {
   const Colors = useColors();

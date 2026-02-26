@@ -10,12 +10,20 @@ userRouter.put(
   UserController.updateUserInfo,
 );
 
-userRouter.post(
+userRouter.put(
   "/upload-resume",
   authMiddleware,
-  upload.fields([{ name: "Resume" }]),
+  upload.single("resume"),
   UserController.handleResumeUpload
 );
+
+userRouter.put(
+  "/delete-resume",
+  authMiddleware,
+  upload.single("resume"),
+  UserController.deleteExperience
+);
+
 
 userRouter.put(
   "/update-ProfilePic",
@@ -39,20 +47,26 @@ userRouter.get("/get-profile",
 userRouter.post(
   "/add-experience",
   authMiddleware,
-  upload.fields([{ name: "offerLetter" }, { name: "completionCertificate" }]),
+  // upload.fields([{ name: "offerLetter" }, { name: "completionCertificate" }]),
   UserController.addExperience,
 );
 
 userRouter.put(
-  "update-experience",
+  "/update-experience",
   authMiddleware,
   UserController.updateExperience,
 );
 
 userRouter.delete(
-  "delete-experience",
+  "/delete-experience/:experienceId",
   authMiddleware,
   UserController.deleteExperience,
+);
+
+userRouter.put(
+  "/update-platform-links",
+  authMiddleware,
+  UserController.updateUserPlatformLinks
 );
 
 export default userRouter;

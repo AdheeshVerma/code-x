@@ -28,10 +28,10 @@ export default function EditProfileModal({ isOpen, onClose, onSave }: Props) {
     const trimmedUserInfo = userInfo.trim();
 
     // validation
-    if (!trimmedName || !trimmedHeadline || !trimmedUserInfo) {
-      setError("All fields are required");
-      return;
-    }
+    // if (!trimmedName || !trimmedHeadline || !trimmedUserInfo) {
+    //   setError("All fields are required");
+    //   return;
+    // }
 
     try {
       const res = await fetch(`${backendUrl}/api/v1/users/update-user-info`, {
@@ -135,7 +135,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave }: Props) {
 
           <button
   onClick={updateData}
-  disabled={!name || !headline || !userInfo}
+  // disabled={!name || !headline || !userInfo}
   className={`
     px-5 py-2 rounded-lg font-mono text-sm
     ${Colors.background.special}

@@ -20,10 +20,12 @@ import ThemeSwitcher from "@/components/General/(Color Manager)/ThemeSwitcher";
 import { useColors } from "@/components/General/(Color Manager)/useColors";
 import EditProfileModal from "./EditProfileModal";
 import KnowMoreProfileModal from "./KnowMoreProfileModal";
+import EditLinksModal, { updateUserLinks } from "./EditLinksModal";
 
 type PlatformProps = {
   icon: ReactNode;
   label: string;
+  url: string;
 };
 
 type User = {
@@ -35,15 +37,47 @@ type User = {
   bannerUrl: string;
   headline: string;
   userInfo: string;
+  resume?: string | null;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  leetcodeUrl?: string;
+  codeForcesUrl?: string;
+  mediumUrl?: string;
+  portfolioUrl?: string;
 };
 
-const platformArray = [
-  { icon: Github, label: "Github" },
-  { icon: Code2, label: "Leetcode" },
-  { icon: PenTool, label: "Medium" },
-  { icon: Linkedin, label: "Linkedin" },
-  { icon: Globe, label: "Portfolio" },
-];
+const PLATFORM_CONFIG = [
+  {
+    key: "githubUrl",
+    label: "GitHub",
+    icon: Github,
+  },
+  {
+    key: "linkedinUrl",
+    label: "LinkedIn",
+    icon: Linkedin,
+  },
+  {
+    key: "leetcodeUrl",
+    label: "LeetCode",
+    icon: Code2,
+  },
+  {
+    key: "codeForcesUrl",
+    label: "Codeforces",
+    icon: Code2,
+  },
+  {
+    key: "mediumUrl",
+    label: "Medium",
+    icon: PenTool,
+  },
+  {
+    key: "portfolioUrl",
+    label: "Portfolio",
+    icon: Globe,
+  },
+] as const;
 
 export default function SideSection() {
   const Colors = useColors();
@@ -74,7 +108,7 @@ export default function SideSection() {
       if (!res) throw new Error("Unable to get Data");
 
       const result = await res.json();
-      console.log("Data fetch success:", result.data);
+      // console.log("Data fetch success:", result.data);
       setData(result.data);
     } catch (err) {
       console.error(err);
@@ -120,11 +154,134 @@ export default function SideSection() {
       toast.error("Unable to Upload", { id: toastId });
     }
   };
+  const sanitizeLinksPayload = (payload: updateUserLinks) => {
+    return Object.fromEntries(
+      Object.entries(payload)
+        .map(([key, value]) => [
+          key,
+          typeof value === "string" && value.trim() !== ""
+            ? value.trim()
+            : undefined,
+        ])
+        .filter(([, value]) => value !== undefined),
+    ) as updateUserLinks;
+  };
+  const updatePlatformLinks = async (payload: updateUserLinks) => {
+    const toastId = toast.loading("Updating links...");
+
+    try {
+      const cleanedPayload = sanitizeLinksPayload(payload);
+
+      if (Object.keys(cleanedPayload).length === 0) {
+        toast.error("Nothing to update", { id: toastId });
+        return;
+      }
+
+      const res = await fetch(
+        `${backendUrl}/api/v1/users/update-platform-links`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(cleanedPayload),
+        },
+      );
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Update failed");
+      }
+
+      const result = await res.json();
+
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              ...result.data,
+            }
+          : prev,
+      );
+
+      toast.success("Links updated successfully!", { id: toastId });
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Unable to update links", {
+        id: toastId,
+      });
+    }
+  };
+
+  const activePlatforms = data
+    ? PLATFORM_CONFIG.filter(({ key }) => {
+        const value = data[key];
+        return typeof value === "string" && value.trim() !== "";
+      })
+    : [];
+
+  const handleResumeUpload = async (file: File) => {
+    const toastId = toast.loading("Uploading Resume...");
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const res = await fetch(`${backendUrl}/api/v1/users/upload-resume`, {
+        method: "PUT",
+        credentials: "include",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+
+      const result = await res.json();
+
+      if (!result.data?.resume) {
+        throw new Error(result.message || "Upload failed");
+      }
+
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              resume: `${result.data.resume}?t=${Date.now()}`,
+            }
+          : prev,
+      );
+      toast.success("Upload Success!", { id: toastId });
+    } catch (error) {
+      console.error(error);
+      toast.error("Unable to Upload", { id: toastId });
+    }
+  };
+
+  const handleResumeDelete = async () => {
+    const toastId = toast.loading("Deleting Resume...");
+    try {
+      const res = await fetch(`${backendUrl}/api/v1/users/delete-resume`, {
+        method: "PUT",
+        credentials: "include",
+      });
+
+      if (!res) throw new Error("Unable to delete");
+
+      const result = await res.json();
+      setData((prev) => (prev ? { ...prev, resume: null } : prev));
+      setResumeOpen(false);
+      toast.success("Delete Success!", { id: toastId });
+    } catch (error) {
+      console.log(error);
+      toast.error("Unable to Delete", { id: toastId });
+    }
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [editOpen, setEditOpen] = useState(false);
   const [knowMoreOpen, setKnowMoreOpen] = useState(false);
+  const [editLinksOpen, setEditLinksOpen] = useState(false);
+  const resumeInputRef = useRef<HTMLInputElement>(null);
+  const [resumeOpen, setResumeOpen] = useState(false);
   return (
     <div
       className={`${Colors.background.secondary} w-full min-h-full p-4 flex flex-col justify-between rounded-xl`}
@@ -141,6 +298,18 @@ export default function SideSection() {
         }}
       />
 
+      {/* hidden resume upload  */}
+      <input
+        ref={resumeInputRef}
+        type="file"
+        accept=".pdf,.doc,.docx"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleResumeUpload(file);
+        }}
+      />
+
       <div>
         <div className="flex justify-center mb-4">
           <div
@@ -150,72 +319,43 @@ export default function SideSection() {
       group cursor-pointer
       flex items-center justify-center
     `}
-            onClick={() => {
-              console.log("Edit profile pic");
-              fileInputRef.current?.click();
-            }}
+            onClick={() => fileInputRef.current?.click()}
           >
-            {/* Avatar Icon */}
-            <div className="flex justify-center mb-4">
-              <div
-                className={`
-      relative w-50 h-50 rounded-full overflow-hidden
-      ${Colors.background.primary}
-      group cursor-pointer
-      flex items-center justify-center
-    `}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {data?.profileUrl ? (
-                  <img
-                    src={data.profileUrl}
-                    alt="Profile"
-                    className="
-          block
-          w-full h-full
-          object-cover
-          rounded-full
-          leading-none
-          transition-all duration-200
-          group-hover:blur-sm group-hover:opacity-60
-        "
-                  />
-                ) : (
-                  <User
-                    className="
-          w-32 h-32
-          text-white
-          transition-all duration-200
-          group-hover:blur-sm group-hover:opacity-60
-        "
-                  />
-                )}
-
-                {/* Hover overlay */}
-                <div
-                  className="
-        absolute inset-0
-        flex items-center justify-center
-        bg-black/40
-        opacity-0
-        group-hover:opacity-100
-        transition-opacity duration-200
+            {data?.profileUrl ? (
+              <img
+                src={data.profileUrl}
+                alt="Profile"
+                className="
+        block
+        w-full h-full
+        object-cover
+        rounded-full
+        leading-none
+        transition-all duration-200
+        group-hover:blur-sm group-hover:opacity-60
       "
-                >
-                  <Pencil className="w-8 h-8 text-white" />
-                </div>
-              </div>
-            </div>
-            {/* Hover Overlay */}
+              />
+            ) : (
+              <User
+                className="
+        w-32 h-32
+        text-white
+        transition-all duration-200
+        group-hover:blur-sm group-hover:opacity-60
+      "
+              />
+            )}
+
+            {/* Hover overlay */}
             <div
-              className={`
-        absolute inset-0
-        flex items-center justify-center
-        bg-black/40
-        opacity-0
-        group-hover:opacity-100
-        transition-opacity duration-200
-      `}
+              className="
+      absolute inset-0
+      flex items-center justify-center
+      bg-black/40
+      opacity-0
+      group-hover:opacity-100
+      transition-opacity duration-200
+    "
             >
               <Pencil className="w-8 h-8 text-white" />
             </div>
@@ -270,30 +410,63 @@ export default function SideSection() {
           </div>
         </div>
 
-        {/* headline and userInfo  */}
-        {/* <div
-          className={`mt-4 font-mono ${Colors.background.primary} rounded-xl px-4 py-3 flex items-center justify-between`}
-        >
-          {data?.headline ?? "Loading...."}
-          <br />
-          {data?.userInfo ?? "Loading...."}
-        </div> */}
-
         <div
           className={`mt-6 ${Colors.background.primary} rounded-xl p-4 max-h-82 overflow-y-scroll`}
         >
-          <p className={`${Colors.text.primary} text-2xl font-mono mb-2`}>
-            Other Platforms
-          </p>
+          <div className="flex items-center justify-between mb-2">
+            <p className={`${Colors.text.primary} text-2xl font-mono`}>
+              Other Platforms
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                console.log("Edit platform links");
+                setEditLinksOpen(true);
+              }}
+              className={`${Colors.text.secondary} hover:${Colors.text.primary} transition p-1`}
+              aria-label="Edit platform links"
+            >
+              <Pencil
+                size={18}
+                className={`${Colors.properties.interactiveButton}`}
+              />
+            </button>
+          </div>
           <div className={`${Colors.border.defaultThinBottom} mb-3`} />
 
-          {platformArray.map(({ icon: Icon, label }) => (
-            <Platform key={label} icon={<Icon />} label={label} />
-          ))}
+          {activePlatforms.length === 0 ? (
+            <p className={`${Colors.text.secondary} font-mono text-sm`}>
+              No platforms added yet
+            </p>
+          ) : (
+            activePlatforms.map(({ key, label, icon: Icon }) => (
+              <Platform
+                key={key}
+                icon={<Icon />}
+                label={label}
+                url={data![key] as string}
+              />
+            ))
+          )}
         </div>
       </div>
 
-      <ThemeSwitcher />
+      <div className="flex items-center justify-between gap-2">
+        <ThemeSwitcher />
+
+        <button
+          onClick={() => {
+            if (!data?.resume) {
+              resumeInputRef.current?.click();
+            } else {
+              setResumeOpen(true);
+            }
+          }}
+          className={`${Colors.background.primary} ${Colors.text.primary} px-4 py-2 rounded-xl font-mono text-sm hover:opacity-80 transition`}
+        >
+          {data?.resume ? "View Resume" : "Upload Resume"}
+        </button>
+      </div>
 
       {/* Bottom Buttons */}
       <div className="flex gap-3">
@@ -337,19 +510,81 @@ export default function SideSection() {
           techStack: ["React", "Next.js", "Docker", "Java"],
         }}
       />
+
+      {/* Edit links modal  */}
+      <EditLinksModal
+        isOpen={editLinksOpen}
+        onClose={() => setEditLinksOpen(false)}
+        initialValues={{
+          githubUrl: data?.githubUrl,
+          linkedinUrl: data?.linkedinUrl,
+          leetcodeUrl: data?.leetcodeUrl,
+          codeForcesUrl: data?.codeForcesUrl,
+          mediumUrl: data?.mediumUrl,
+          portfolioUrl: data?.portfolioUrl,
+        }}
+        onSave={(payload) => {
+          updatePlatformLinks(payload);
+          setEditLinksOpen(false);
+        }}
+      />
+
+      {/* resume upload modal  */}
+      {resumeOpen && data?.resume && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+          <div
+            className={`${Colors.background.primary} w-[80%] h-[80%] rounded-xl p-4 relative`}
+          >
+            {/* Bottom actions */}
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+              {/* Close - bottom left */}
+              <button
+                onClick={() => setResumeOpen(false)}
+                className={`${Colors.properties.interactiveButton} text-sm opacity-70 hover:opacity-100 transition ml-2`}
+              >
+                Close
+              </button>
+
+              {/* Update + Delete - bottom right */}
+              <div className="flex gap-2 m-2">
+                <button
+                  onClick={() => resumeInputRef.current?.click()}
+                  className={`${Colors.background.secondary} px-3 py-1 rounded-lg text-sm ${Colors.properties.interactiveButton}`}
+                >
+                  Update
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleResumeDelete();
+                  }}
+                  className={`bg-red-500 text-white px-3 py-1 rounded-lg text-sm ${Colors.properties.interactiveButton}`}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+
+            {/* Resume display */}
+            <iframe src={data.resume} className="w-full h-full rounded-lg" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function Platform({ icon, label }: PlatformProps) {
+function Platform({ icon, label, url }: PlatformProps) {
   const Colors = useColors();
   return (
-    <div
-      className={`flex items-center gap-3 ${Colors.text.primary} text-lg font-mono py-1`}
+    <a
+      href={url}
+      target="blank"
+      className={`flex items-center gap-3 ${Colors.text.primary} text-lg font-mono py-2 hover:opacity-70 transition`}
     >
       <span className="w-5 h-5">{icon}</span>
       <span>{label}</span>
-    </div>
+    </a>
   );
 }
 

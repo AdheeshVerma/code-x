@@ -62,7 +62,7 @@ export default function KnowMoreProfileModal({ isOpen, onClose, user }: Props) {
       if (!res.ok) throw new Error("Upload failed");
 
       const result = await res.json();
-
+      console.log(result);
       if (!result.data?.bannerUrl) {
         throw new Error("Banner upload failed");
       }
@@ -161,69 +161,90 @@ export default function KnowMoreProfileModal({ isOpen, onClose, user }: Props) {
             }}
             className={`
               absolute top-6 right-6 z-10
-              ${Colors.text.secondary}
-              hover:${Colors.text.primary}
+              text-red-500
               transition
             `}
           >
             <X size={22} />
           </button>
 
-          {/* AVATAR */}
-          <div
-            className={`
-              absolute -bottom-16 left-10
-              w-32 h-32 rounded-full
-              overflow-hidden
-              ${Colors.background.secondary}
-              border-4 ${Colors.border.defaultThin}
-              shadow-xl
-            `}
-          >
-            {user.profileUrl ? (
-              <img
-                src={user.profileUrl}
-                className="w-full h-full object-cover"
-                alt="profile"
-              />
-            ) : (
-              <UserIcon
-                className={`w-full h-full p-8 ${Colors.text.inverted}`}
-              />
-            )}
-          </div>
         </div>
 
         {/* MAIN */}
-        <div className="px-10 pt-20 pb-10">
+        <div className="px-10 pt-8 pb-10">
           {/* NAME SECTION */}
-          <div>
-            <h1
-              className={`
-                text-3xl font-semibold
-                ${Colors.text.primary}
-              `}
-            >
-              {user.name}
-            </h1>
-            <p className={Colors.text.secondary}>@{user.username}</p>
-
-            {user.headline && (
-              <p
+          <div className="flex items-start justify-between gap-6">
+            <div className="flex items-center gap-6 min-w-0">
+              <div
                 className={`
-                  mt-2 font-mono
-                  ${Colors.text.special}
+                  w-36 h-36 rounded-full
+                  overflow-hidden shrink-0
+                  ${Colors.background.secondary}
+                  border-4 ${Colors.border.defaultThin}
+                  shadow-xl
                 `}
               >
-                {user.headline}
-              </p>
-            )}
+                {user.profileUrl ? (
+                  <img
+                    src={user.profileUrl}
+                    className="w-full h-full object-cover"
+                    alt="profile"
+                  />
+                ) : (
+                  <UserIcon
+                    className={`w-full h-full p-9 ${Colors.text.inverted}`}
+                  />
+                )}
+              </div>
 
-            {user.role && (
-              <p className={`${Colors.text.secondary} text-sm mt-1`}>
-                {user.role}
-              </p>
-            )}
+              <div className="min-w-0">
+                <h1
+                  className={`
+                    text-4xl font-bold tracking-tight
+                    ${Colors.text.primary}
+                  `}
+                >
+                  {user.name}
+                </h1>
+                <p className={`${Colors.text.secondary} text-base font-medium mt-1`}>
+                  @{user.username}
+                </p>
+
+                {user.headline && (
+                  <p
+                    className={`
+                      mt-3 text-base font-semibold
+                      ${Colors.text.special}
+                    `}
+                  >
+                    {user.headline}
+                  </p>
+                )}
+
+                {user.role && (
+                  <p className={`${Colors.text.secondary} text-sm mt-2`}>
+                    {user.role}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className={`
+                shrink-0 mt-2 h-11 w-11 rounded-full
+                flex items-center justify-center
+                ${Colors.background.secondary}
+                ${Colors.border.defaultThin}
+                ${Colors.text.secondary}
+                hover:${Colors.text.primary}
+                transition
+                ${Colors.properties.interactiveButton}
+              `}
+              aria-label="Edit profile"
+            >
+              <Pencil size={18} />
+            </button>
           </div>
 
           {/* DIVIDER */}
