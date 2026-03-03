@@ -202,3 +202,11 @@ export interface updateWishlistBody {
   name?: string;
   description?: string;
 }
+export interface createWishlistEntry {
+  wishlistId: string,
+  candidateId: string,
+}
+export interface updateWishlistEntry {
+  wishlistId?: string,
+  candidateId?: string,
+}

@@ -7,12 +7,12 @@ class WishlistController {
         try {
             const data: createWishListBody = req.body;
             if (!data) throw new Error("Please Provide all required fields");
-            if (!req.user) throw new Error("user is not authenticated");
+            if (!req.user) throw new Error("user is Not Authorized");
             const userId = req.user.id;
             const user = await prismaClient.interviewer.findFirst({
                 where: { id: userId }
             });
-            if (!user) throw new Error("No such user exists");
+            if (!user) throw new Error("Not Authorized");
             const existingWishlist = await prismaClient.wishlist.findFirst({
                 where: {
                     id: userId,
@@ -38,8 +38,12 @@ class WishlistController {
         try {
             const data: updateWishlistBody = req.body;
             if (!data) throw new Error("Please Provide all required fields");
-            if (!req.user) throw new Error("user is not authenticated");
+            if (!req.user) throw new Error("user is Not Authorized");
             const userId = req.user.id;
+            const user = await prismaClient.interviewer.findFirst({
+                where: { id: userId }
+            });
+            if (!user) throw new Error("Not Authorized");
             const wishlistId = req.params.id;
             const existingList = await prismaClient.wishlist.findFirst({
                 where: { id: wishlistId as string }
@@ -67,10 +71,15 @@ class WishlistController {
     }
     async deleteWishlist(req: Request, res: Response) {
         try {
-            const data: updateWishlistBody = req.body;
+            const data = req.body;
             if (!data) throw new Error("Please Provide all required fields");
-            if (!req.user) throw new Error("user is not authenticated");
+            if (!req.user) throw new Error("user is Not Authorized");
+            const userId = req.user.id;
             const wishlistId = req.params.id;
+            const user = await prismaClient.interviewer.findFirst({
+                where: { id: userId }
+            });
+            if (!user) throw new Error("Not Authorized");
             const existingList = await prismaClient.wishlist.findFirst({
                 where: { id: wishlistId as string }
             });
@@ -86,9 +95,14 @@ class WishlistController {
     }
     async getWishlistById(req: Request, res: Response) {
         try {
-            const data: updateWishlistBody = req.body;
+            const data = req.body;
             if (!data) throw new Error("Please Provide all required fields");
-            if (!req.user) throw new Error("user is not authenticated");
+            if (!req.user) throw new Error("user is Not Authorized");
+            const userId = req.user.id;
+            const user = await prismaClient.interviewer.findFirst({
+                where: { id: userId }
+            });
+            if (!user) throw new Error("Not Authorized");
             const wishlistId = req.params.id;
             const existingList = await prismaClient.wishlist.findFirst({
                 where: { id: wishlistId as string }
@@ -102,10 +116,14 @@ class WishlistController {
     }
     async getAllWishlistByUser(req: Request, res: Response) {
         try {
-            const data: updateWishlistBody = req.body;
+            const data = req.body;
             if (!data) throw new Error("Please Provide all required fields");
-            if (!req.user) throw new Error("user is not authenticated");
+            if (!req.user) throw new Error("user is Not Authorized");
             const userId = req.user.id;
+            const user = await prismaClient.interviewer.findFirst({
+                where: { id: userId }
+            });
+            if (!user) throw new Error("Not Authorized");
             const allWishlists = await prismaClient.wishlist.findMany({
                 where: { creatorId: userId as string }
             });
