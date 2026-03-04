@@ -195,3 +195,19 @@ export interface UrlMapping {
   githubUrl: string;
   codeforcesUrl: string;
 }
+export interface createWishListBody {
+  name: string;
+  description: string;
+}
+export interface updateWishlistBody {
+  name?: string;
+  description?: string;
+}
+export interface createWishlistEntry {
+  wishlistId: string,
+  candidateId: string,
+}
+export interface updateWishlistEntry {
+  wishlistId?: string,
+  candidateId?: string,
+}

@@ -298,15 +298,15 @@ model wishlist {
 }
 
 model wishlistEntry {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  wishlistId  String   @db.ObjectId
-  candidateId String   @db.ObjectId
-  postId      String   @db.ObjectId
-  wishlist    wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
-  candidate   User     @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  post        Projects @relation(fields: [postId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  wishlistId  String    @db.ObjectId
+  candidateId String    @db.ObjectId
+  postId      String?   @db.ObjectId
+  wishlist    wishlist  @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  candidate   User      @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  post        Projects? @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model JobListing {

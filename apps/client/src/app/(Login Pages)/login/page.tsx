@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/user-store";
 
@@ -52,7 +53,16 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-6">
-      <div className="relative w-full max-w-md">
+      <div className="relative w-1/2 h-[100vh] overflow-hidden rounded-2xl">
+        <Image
+          src="/loginpng.jpg"
+          alt="Login"
+          fill
+          className="object-contain"
+          priority
+        />
+      </div>
+      <div className="relative w-1/2 max-w-md">
         <div className="absolute inset-0 rounded-2xl bg-emerald-500 blur-2xl opacity-20"></div>
 
         <div className="relative bg-[#0a0a0a] border border-emerald-500/30 rounded-2xl p-10 shadow-2xl">

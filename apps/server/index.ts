@@ -14,13 +14,15 @@ import "dotenv/config";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import cacheClient from "./utils/redis";
-import { authRouter, projectRouter } from "./routes";
+import { authRouter, projectRouter, wishlistRouter } from "./routes";
 import type { JwtPayload } from "./utils/type";
 import userRouter from "./routes/user.route";
 import organizationRouter from "./routes/organization.route";
 import initializeSocket from "./socket/socket";
 import chalk from "chalk";
 import interviewRouter from "./routes/interview.route";
+import wishlistController from "./controller/wishlist.controller";
+import wishlistEntryRouter from "./routes/wishlist-entry.routes";
 
 dotenv.config({ path: "../.env" });
 
@@ -100,6 +102,8 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/organizations", organizationRouter);
 app.use("/api/v1/interview/", interviewRouter);
 app.use("/api/v1/projects", projectRouter);
+app.use("/api/v1/interviewer/wishlist", wishlistRouter);
+app.use("/api/v1/interviewer/wishlistEntry", wishlistEntryRouter);
 
 const errorHandler = (
   error: any,
