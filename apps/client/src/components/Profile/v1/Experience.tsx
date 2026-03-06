@@ -138,7 +138,7 @@ export default function Experience() {
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-        credentials: "include",
+          credentials: "include",
         },
       );
 

@@ -5,56 +5,64 @@ import upload from "../middleware/multer.middleware";
 const organizationRouter = Router();
 
 organizationRouter.put(
-    "update-org-profilePic",
+    "/update-org-profilePic",
     authMiddleware,
-    upload.fields([{name:"Org-Profile-Pic"}]),
+    upload.single("Org-Profile-Pic"),
     organizationController.OrgProfilePicUpdate,
 );
 
 organizationRouter.put(
-    "update-org-profileBanner",
+    "/update-org-profileBanner",
     authMiddleware,
-    upload.fields([{name:"Org-Profile-Pic"}]),
-    organizationController.OrgProfilePicUpdate,
+    upload.single("Org-Profile-Banner"),
+    organizationController.OrgProfileBannerUpdate,
 );
 
 organizationRouter.put(
-    "update-organization",
+    "/update-organization",
     authMiddleware,
     organizationController.updateOrganizationInfo,
 );
 
 organizationRouter.post(
-    "create-interviewer",
+    "/create-interviewer",
     authMiddleware,
     organizationController.addInterviewer,
 );
 
 organizationRouter.put(
-    "update-interviewer",
+    "/update-interviewer",
     authMiddleware,
     organizationController.updateInterviewerDetail,
 );
 
 organizationRouter.delete(
-    "delete-interviewer",
+    "/delete-interviewer",
     authMiddleware,
     organizationController.removeInterviewer,
 );
 
 organizationRouter.put(
-    "update-interviewer-profilePic",
+    "/update-interviewer-profilePic",
     authMiddleware,
-    upload.fields([{name:"Interviewer-Profile-Pic"}]),
+    upload.single("Interviewer-Profile-Pic"),
     organizationController.InterviewerProfilePicUpdate,
 );
 
 
 organizationRouter.put(
-    "update-interviewer-banner",
+    "/update-interviewer-banner",
     authMiddleware,
-    upload.fields([{name:"Interviewer-Profile-Banner"}]),
+    upload.single("Interviewer-Profile-Banner"),
     organizationController.InterviewerProfileBannerUpdate,
+);
+
+// Org dashboard helpers
+organizationRouter.get("/me", authMiddleware, organizationController.getMyOrganization);
+organizationRouter.get(
+  "/interviewers",
+  authMiddleware,
+  organizationController.listMyInterviewers,
 );
 
 export default organizationRouter;

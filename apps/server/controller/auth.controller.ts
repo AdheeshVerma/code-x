@@ -91,7 +91,7 @@ class AuthController {
           apiResponse(200, "login successful", { data: dborganization, token }),
         );
     } catch (error: any) {
-      return res.status(401).json(apiResponse(401, error.message, null));
+      return res.status(200).json(apiResponse(401, error.message, null));
     }
   }
   async CreateInterviewer(req: Request, res: Response) {

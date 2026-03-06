@@ -1,7 +1,4 @@
-import React from "react";
-
-function page() {
-  return <div>page</div>;
+import OrganisationDashboardV1 from "@/components/Organisation/Dashboard";
+export default function page() {
+  return <OrganisationDashboardV1 />;
 }
-
-export default page;

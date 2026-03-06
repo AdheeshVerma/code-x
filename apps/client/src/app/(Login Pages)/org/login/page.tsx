@@ -6,6 +6,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import axiosInstance from "@/utils/axiosInstance";
 
 type OrgLoginData = {
     email: string;
@@ -27,13 +28,11 @@ export default function OrgLoginPage() {
         try {
             setLoading(true);
 
-            const res = await fetch(backendUrl + "/api/v1/auth/login/org", {
-                method: "POST",
+            const res = await axiosInstance.post(backendUrl + "/api/v1/auth/login/org", data, {
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
             });
 
-            const result = await res.json();
+            const result = await res.data;
             console.log(result);
             toast.success("Logged in successfully!");
             router.push("/profile");

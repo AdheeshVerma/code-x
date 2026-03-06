@@ -200,13 +200,20 @@ class UserController {
         where: {
           id: userId,
         },
-        include: {
-          userExperiences: {
-            orderBy: {
-              createdAt: "desc",
-            },
-          },
-        },
+        select: {
+          username: true,
+          githubOAuth: true,
+          userExperiences: true,
+        }
+        // include: {
+        //   userExperiences: {
+        //     orderBy: {
+        //       createdAt: "desc",
+        //     },
+
+        //   },
+
+        // },
       });
 
       if (!userData) throw new Error("Unable to fetch user data");
@@ -296,8 +303,8 @@ class UserController {
 
       const files = req.files as
         | {
-            [fieldname: string]: Express.Multer.File[];
-          }
+          [fieldname: string]: Express.Multer.File[];
+        }
         | undefined;
       const offerLetterFile = files?.offerLetter?.[0];
       const completionCertificateFile = files?.completionCertificate?.[0];
@@ -340,7 +347,7 @@ class UserController {
 
       const completionCertificateFromBody =
         typeof data.completionCertificate === "string" &&
-        data.completionCertificate.trim()
+          data.completionCertificate.trim()
           ? data.completionCertificate.trim()
           : undefined;
 

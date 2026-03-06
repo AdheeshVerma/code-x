@@ -232,6 +232,11 @@ class JobListingController{
     async getAllJobListings(req:Request,res:Response){
         try {
             const orgId = req.user?.id;
+            if (req.user?.type !== "ORGANIZATION") {
+                return res
+                  .status(403)
+                  .json(apiResponse(403,"Only organizations can view job listings",null));
+            }
 
             if(!orgId){
                 return res

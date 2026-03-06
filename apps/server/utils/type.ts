@@ -1,6 +1,6 @@
 export interface JwtPayload {
   id: string;
-  type: "ORGANIZATION" | "INTERVIEWER" | "USER";
+  type: | "ORGANIZATION" | "INTERVIEWER" | "USER";
 }
 export interface CreateInterviewerBody {
   name: string;
