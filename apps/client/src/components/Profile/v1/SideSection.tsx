@@ -158,12 +158,23 @@ export default function SideSection() {
     }
   };
 
-  function handleLogout() {
-    // Clear cookies and redirect to "/"
-    // TODO
-    console.log("Logging out...");
-    document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    router.push("/");
+  async function handleLogout() {
+    try {
+      const res = await fetch(`${backendUrl}/api/v1/auth/logout`,{
+        method:"GET",
+        credentials:"include",
+      });
+
+      if(!res.ok){
+        throw new Error("Logout Failed");
+      }
+
+      toast.success("Logged Out SuccessFully !");
+      router.replace("/");
+    } catch (error) {
+      console.log(error);
+      toast.error("Logout Failed");
+    }
   }
 
   const sanitizeLinksPayload = (payload: updateUserLinks) => {
@@ -399,16 +410,14 @@ export default function SideSection() {
           <ThemeSwitcher />
         </div>
 
-        {/* Bottom Buttons */}
-        <div className="flex gap-3">
-          <button
-            onClick={handleLogout}
-            className={`${Colors.background.special} ${Colors.properties.interactiveButton} w-full py-3 rounded-xl flex items-center justify-center gap-2`}
-          >
-            <DoorOpen className={`${Colors.text.inverted}`} />
-            <span className={`${Colors.text.inverted} font-semibold`}>Logout</span>
-          </button>
-        </div>
+      {/* Bottom Buttons */}
+      <div className="flex gap-3">
+        <button
+        onClick={handleLogout}
+          className={`${Colors.background.special} ${Colors.properties.interactiveButton} flex-1 py-3 rounded-xl flex items-center justify-center`}
+        >
+          <DoorOpen className={`${Colors.text.inverted}`} /> <span className={`ml-2 ${Colors.text.inverted} font-semibold`} >Logout</span>
+        </button>
         {/* <button
           className={`${Colors.background.special} ${Colors.properties.interactiveButton} flex-1 py-3 rounded-xl flex items-center justify-center`}
         >

@@ -23,6 +23,7 @@ import chalk from "chalk";
 import interviewRouter from "./routes/interview.route";
 import wishlistController from "./controller/wishlist.controller";
 import wishlistEntryRouter from "./routes/wishlist-entry.routes";
+import jobListingRouter from "./routes/job-listing.route";
 
 import passport from "passport";
 import session from "express-session";
@@ -125,6 +126,7 @@ app.use("/api/v1/interview/", interviewRouter);
 app.use("/api/v1/projects", projectRouter);
 app.use("/api/v1/interviewer/wishlist", wishlistRouter);
 app.use("/api/v1/interviewer/wishlistEntry", wishlistEntryRouter);
+app.use("/api/v1/jobListing",jobListingRouter);
 
 const errorHandler = (
   error: any,

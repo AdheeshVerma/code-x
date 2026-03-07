@@ -216,9 +216,9 @@ export default function RegisterPage() {
 
           {/* Divider */}
           <div className="flex items-center my-6">
-            <div className="flex-grow border-t border-gray-700" />
+            <div className="grow border-t border-gray-700" />
             <span className="px-4 text-xs text-gray-500">OR</span>
-            <div className="flex-grow border-t border-gray-700" />
+            <div className="grow border-t border-gray-700" />
           </div>
 
           {/* Social Login */}

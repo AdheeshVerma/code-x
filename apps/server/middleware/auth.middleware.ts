@@ -31,7 +31,6 @@ export const authMiddleware = async (
       });
     }
     console.log(decoded)
-    console.log(user);
 
     if (!user) {
       return res

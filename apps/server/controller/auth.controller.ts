@@ -352,6 +352,22 @@ class AuthController {
     }
   }
 
+  async Logout(req:Request,res:Response){
+    try {
+      res.clearCookie("accessToken",{
+        httpOnly:true,
+        secure:false,
+        sameSite:"lax"
+      });
+
+      return res.json({success:true});
+    } catch (error:any) {
+      return res.status(200).json(
+        apiResponse(500,error.message,null)
+      );
+    }
+  }
+
   async OAuthLogin(
     email: string,
     githubId: string,

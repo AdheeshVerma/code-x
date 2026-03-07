@@ -14,6 +14,8 @@ authRouter.post("/verify-otp", authController.matchVerificationOTP);
 
 authRouter.post("/reset-password", authController.resetPassword);
 
+authRouter.get("/logout",authController.Logout);
+
 // GitHub Login
 authRouter.get(
   "/github",

@@ -56,7 +56,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-6">
-      <div className="relative w-1/2 h-[100vh] overflow-hidden rounded-2xl">
+      <div className="relative w-1/2 h-screen overflow-hidden rounded-2xl">
         <Image
           src="/loginpng.jpg"
           alt="Login"
@@ -153,9 +153,9 @@ export default function LoginPage() {
 
           {/* Divider */}
           <div className="flex items-center my-6">
-            <div className="flex-grow border-t border-gray-700" />
+            <div className="grow border-t border-gray-700" />
             <span className="px-4 text-xs text-gray-500">OR</span>
-            <div className="flex-grow border-t border-gray-700" />
+            <div className="grow border-t border-gray-700" />
           </div>
 
           {/* Social Login */}
