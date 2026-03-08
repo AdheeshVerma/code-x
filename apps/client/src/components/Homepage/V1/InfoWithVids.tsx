@@ -1,5 +1,6 @@
 import { useColors } from "@/components/General/(Color Manager)/useColors";
 import React from "react";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 export default function InfoWithVids() {
   const Colors = useColors();
@@ -8,10 +9,7 @@ export default function InfoWithVids() {
       {/* Section 1 - Video on Left */}
       <div className="flex flex-col md:flex-row gap-8 items-center">
         <div className="flex-1">
-          <video loop autoPlay muted className="w-3/4 rounded-lg shadow-lg">
-            <source src="/videos/rocket2.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+          <DotLottieReact src="/videos/Interview.lottie" loop autoplay className="w-full" />
         </div>
         <div className="flex-1 space-y-4">
           <h3 className={`text-4xl font-bold ${Colors.text.special}`}>Live Coding Interviews</h3>
@@ -27,10 +25,7 @@ export default function InfoWithVids() {
       {/* Section 2 - Video on Right */}
       <div className="flex flex-col md:flex-row-reverse gap-8 items-center">
         <div className="flex-1">
-          <video loop autoPlay muted className="w-3/4 rounded-lg shadow-lg">
-            <source src="/videos/cube.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+          <DotLottieReact src="/videos/Cube.lottie" loop autoplay className="w-full" />
         </div>
         <div className="flex-1 space-y-4">
           <h3 className={`text-4xl font-bold ${Colors.text.special}`}>Video Conferencing & Analytics</h3>
@@ -46,10 +41,7 @@ export default function InfoWithVids() {
       {/* Section 3 - Video on Left */}
       <div className="flex flex-col md:flex-row gap-8 items-center">
         <div className="flex-1">
-          <video loop autoPlay muted className="w-3/4 rounded-lg shadow-lg">
-            <source src="/videos/purple.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+          <DotLottieReact src="/videos/Purple.lottie" loop autoplay className="w-full" />
         </div>
         <div className="flex-1 space-y-4">
           <h3 className={`text-4xl font-bold ${Colors.text.special}`}>Multi-Round Interview Management</h3>

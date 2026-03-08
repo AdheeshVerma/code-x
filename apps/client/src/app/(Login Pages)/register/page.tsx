@@ -62,7 +62,7 @@ export default function RegisterPage() {
     };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-6">
+    <div className="min-h-screen bg-black flex items-center justify-center p-6 font-mono">
       <div className="relative w-full max-w-3xl">
         <div className="absolute inset-0 rounded-2xl bg-emerald-500 blur-2xl opacity-20"></div>
 

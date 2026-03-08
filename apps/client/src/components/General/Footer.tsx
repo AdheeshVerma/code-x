@@ -12,7 +12,7 @@ export default function Footer() {
 
   return (
     <footer
-      className="bg-neutral-950 border-t border-neutral-700 backdrop-blur-lg py-8 px-6 transition-all duration-300"
+      className="bg-neutral-950 border-t border-neutral-700 backdrop-blur-lg py-8 px-6 transition-all duration-300 font-mono"
     >
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {/* Company Info & Social Media */}
@@ -98,16 +98,16 @@ export default function Footer() {
           <ul className="space-y-2 text-neutral-400">
             <li className="transition-all duration-300 hover:translate-x-2 hover:text-neutral-200" style={{ animationDelay: '0.3s' }}>
               <p className="group cursor-pointer">
-                <span className="font-semibold text-neutral-300">Email:</span> sales_support@codex.com
+                <span className="font-semibold text-neutral-300">Email:</span> support@persephone.com
               </p>
             </li>
             <li className="transition-all duration-300 hover:translate-x-2 hover:text-neutral-200" style={{ animationDelay: '0.35s' }}>
               <p className="group cursor-pointer">
-                <span className="font-semibold text-neutral-300">Phone:</span> +91 9787777547
+                <span className="font-semibold text-neutral-300">Phone:</span> +91 6284645754
               </p>
             </li>
             <li className="transition-all duration-300 hover:translate-x-2 hover:text-neutral-200" style={{ animationDelay: '0.4s' }}>
-              <span className="font-semibold text-neutral-300">Address:</span> Banglore India
+              <span className="font-semibold text-neutral-300">Address:</span> Punjab India
             </li>
           </ul>
         </div>
@@ -119,7 +119,7 @@ export default function Footer() {
         style={{ animationDelay: '0.45s' }}
       >
         <p className="transition-colors duration-300 hover:text-neutral-200">
-          &copy; {new Date().getFullYear()} Code-X. All rights reserved.
+          &copy; {new Date().getFullYear()} Persephone. All rights reserved.
         </p>
       </div>
 

@@ -1,9 +1,11 @@
 "use client"
 
 import { useColors } from "@/components/General/(Color Manager)/useColors";
+import { useRouter } from "next/navigation";
 
 export default function HeroLeft() {
   const Colors = useColors();
+  const router = useRouter();
   return (
     <div className="flex flex-col justify-center space-y-8 max-w-2xl">
       
@@ -24,6 +26,7 @@ export default function HeroLeft() {
       <div>
         <button
           className={`px-4 py-4 text-base rounded-xl ${Colors.border.specialThick} text-white bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all ${Colors.properties.interactiveButton}`}
+          onClick={() => router.push('/register')}
         >
           Interview Smarter
         </button>

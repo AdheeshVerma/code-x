@@ -6,10 +6,10 @@ import { useState } from "react";
 
 const navLinks = [
   { href: "/", label: "HOME" },
-  { href: "/about", label: "ABOUT" },
+  // { href: "/about", label: "ABOUT" },
   // { href: "/services", label: "SERVICES" },
   // { href: "/blog", label: "BLOG" },
-  { href: "/contact", label: "CONTACT" },
+  // { href: "/contact", label: "CONTACT" },
 ];
 
 export function LandingNavbar() {
@@ -17,7 +17,7 @@ export function LandingNavbar() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
-    <header className="top-0 z-50 px-4 pt-5 pb-2 sm:px-6 absolute w-full">
+    <header className="top-0 z-50 px-4 pt-5 pb-2 sm:px-6 absolute w-full font-mono">
       <div className="mx-auto max-w-[75%] min-w-[320px] sm:max-w-2xl md:max-w-4xl lg:max-w-5xl">
         <div className="flex h-14 items-center justify-between rounded-3xl border border-neutral-700 bg-neutral-900 px-4 shadow-sm sm:px-5 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-neutral-700/20">
           <Link
@@ -26,7 +26,7 @@ export function LandingNavbar() {
             aria-label="Home"
           >
             <span className="transition-all duration-300 group-hover:scale-110 group-hover:rotate-2 inline-block">
-              Code-X
+              Persephone
             </span>
             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
           </Link>
