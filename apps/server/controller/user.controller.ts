@@ -195,25 +195,33 @@ class UserController {
       const userId = req.user?.id;
       if (!userId) throw new Error("User id is required");
 
-      // TODO: joins left for complete info
       const userData = await prismaClient.user.findFirst({
         where: {
           id: userId,
         },
         select: {
+          id: true,
+          name: true,
           username: true,
+          email: true,
+          profileUrl: true,
+          bannerUrl: true,
+          headline: true,
+          userInfo: true,
+          resume: true,
+          githubUrl: true,
+          linkedinUrl: true,
+          leetcodeUrl: true,
+          codeForcesUrl: true,
+          mediumUrl: true,
+          portfolioUrl: true,
           githubOAuth: true,
-          userExperiences: true,
-        }
-        // include: {
-        //   userExperiences: {
-        //     orderBy: {
-        //       createdAt: "desc",
-        //     },
-
-        //   },
-
-        // },
+          userExperiences: {
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
       });
 
       if (!userData) throw new Error("Unable to fetch user data");

@@ -55,22 +55,23 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-6">
-      <div className="relative w-1/2 h-screen overflow-hidden rounded-2xl">
+    <div className="h-dvh bg-black overflow-hidden px-4 py-4 md:px-6 md:py-6 font-mono">
+      <div className="mx-auto grid h-full w-full max-w-7xl items-center gap-6 lg:grid-cols-2">
+        <div className="relative hidden h-full min-h-80 overflow-hidden rounded-2xl lg:block">
         <Image
           src="/loginpng.jpg"
           alt="Login"
           fill
-          className="object-contain"
+          className="object-cover object-center"
           priority
         />
       </div>
-      <div className="relative w-1/2 max-w-md">
+      <div className="relative mx-auto w-full max-w-md">
         <div className="absolute inset-0 rounded-2xl bg-emerald-500 blur-2xl opacity-20"></div>
 
-        <div className="relative bg-[#0a0a0a] border border-emerald-500/30 rounded-2xl p-10 shadow-2xl">
+        <div className="relative max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-emerald-500/30 bg-[#0a0a0a] p-6 shadow-2xl md:p-8">
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="mb-6 text-center md:mb-8">
             <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
             <p className="text-gray-400 mt-2 text-sm">Login to your account</p>
           </div>
@@ -144,7 +145,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-400">
+          <div className="mt-5 text-center text-sm text-gray-400">
             Don’t have an account?{" "}
             <Link href="/register" className="text-white hover:underline">
               Sign up
@@ -152,7 +153,7 @@ export default function LoginPage() {
           </div>
 
           {/* Divider */}
-          <div className="flex items-center my-6">
+          <div className="my-5 flex items-center">
             <div className="grow border-t border-gray-700" />
             <span className="px-4 text-xs text-gray-500">OR</span>
             <div className="grow border-t border-gray-700" />
@@ -174,6 +175,7 @@ export default function LoginPage() {
             </button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

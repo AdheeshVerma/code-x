@@ -13,7 +13,7 @@ export function FAQ() {
           Frequently asked questions
         </h2>
         <p className="mb-10 text-center text-neutral-400 animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
-          Industry Leaders have used Code-X to transition careers, secure
+          Industry Leaders have used Persephone to transition careers, secure
           promotions, and break into competitive industries.
         </p>
         <div className="space-y-3">
