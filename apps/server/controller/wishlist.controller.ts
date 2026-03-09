@@ -145,8 +145,6 @@ class WishlistController {
             payload
               none
             */
-            const data = req.body;
-            if (!data) throw new Error("Please Provide all required fields");
             if (!req.user) throw new Error("user is Not Authorized");
             const userId = req.user.id;
             const user = await prismaClient.interviewer.findFirst({
@@ -156,6 +154,8 @@ class WishlistController {
             const allWishlists = await prismaClient.wishlist.findMany({
                 where: { creatorId: userId as string }
             });
+            console.log(allWishlists)
+            console.log(user)
             if (!allWishlists) throw new Error("No such wishlists exists");
             return res.status(200).json(apiResponse(200, "All wishlist by user fetched", allWishlists));
         } catch (error: any) {

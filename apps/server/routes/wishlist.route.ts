@@ -27,4 +27,21 @@ wishlistRouter.get(
     authMiddleware,
     wishlistController.getAllWishlistByUser
 );
+
+// Backend declaration routes for Wishlist UI workflow.
+// wishlistRouter.get(
+//     "/interviewer/:interviewerId/wishlists",
+//     authMiddleware,
+//     wishlistController.getInterviewerWishlists
+// );
+// wishlistRouter.get(
+//     "/:id/users",
+//     authMiddleware,
+//     wishlistController.getWishlistUsers
+// );
+// wishlistRouter.patch(
+//     "/:id/name",
+//     authMiddleware,
+//     wishlistController.renameWishlistName
+// );
 export default wishlistRouter;

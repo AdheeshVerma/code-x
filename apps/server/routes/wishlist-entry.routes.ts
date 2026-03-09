@@ -23,8 +23,15 @@ wishlistEntryRouter.get(
     wishlistController.getWishlistEntryById
 );
 wishlistEntryRouter.get(
-    "/  /:id",
+    "/get-all-entries-by-wishlist/:id",
     authMiddleware,
     wishlistController.getAllEntriesByWishlist
 );
+
+// Backend declaration route for Wishlist UI workflow.
+// wishlistEntryRouter.delete(
+//     "/:id/remove-user",
+//     authMiddleware,
+//     wishlistController.removeUserFromWishlist
+// );
 export default wishlistEntryRouter;
