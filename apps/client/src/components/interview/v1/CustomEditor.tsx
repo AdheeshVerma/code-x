@@ -1,18 +1,17 @@
 "use client";
 import { useColors } from "@/components/General/(Color Manager)/useColors";
 import { RemoteUser, useRemoteUsers } from "agora-rtc-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 
-interface fnHandler {
-  videoStream: any;
-}
-
-function CustomEditor(prop: fnHandler) {
+function CustomEditor() {
   const colors = useColors();
-  const videoRef = useRef<HTMLDivElement | null>(null);
   const remoteUsers = useRemoteUsers();
+  const activeVideoUser = useMemo(
+    () => remoteUsers.find((user) => user.hasVideo) ?? remoteUsers[0],
+    [remoteUsers],
+  );
 
-  if (remoteUsers.length === 0) {
+  if (!activeVideoUser) {
     return (
       <div
         className={`
@@ -38,8 +37,12 @@ function CustomEditor(prop: fnHandler) {
         rounded-md
       `}
     >
-      <RemoteUser user={remoteUsers[0]} />
-      {/* <div ref={videoRef} className="h-full w-full [&>video]:object-contain" /> */}
+      <RemoteUser
+        user={activeVideoUser}
+        className="h-full w-full"
+        style={{ height: "100%", width: "100%" }}
+        videoPlayerConfig={{ fit: "contain" }}
+      />
     </div>
   );
 }

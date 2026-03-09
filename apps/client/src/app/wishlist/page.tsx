@@ -1,7 +1,5 @@
-import React from "react";
+import WishlistPageClient from "@/components/Wishlist/v1/WishlistPageClient";
 
-function page() {
-  return <div>page</div>;
+export default function Page() {
+  return <WishlistPageClient />;
 }
-
-export default page;

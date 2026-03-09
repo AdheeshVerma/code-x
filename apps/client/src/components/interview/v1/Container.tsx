@@ -20,7 +20,7 @@ export default function Container(prop: fnHandler) {
         className={`h-full w-full rounded-3xl ${colors.background.secondary} ${colors.border.fadedThin}`}
       >
         {prop.isHost ? (
-          <CustomEditor videoStream={prop.track} />
+          <CustomEditor />
         ) : (
           <iframe className="h-full w-full" src={prop.containerURL}></iframe>
         )}

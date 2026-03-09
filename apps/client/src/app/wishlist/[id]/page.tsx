@@ -1,7 +1,11 @@
-import React from "react";
+import WishlistDetailClient from "@/components/Wishlist/v1/WishlistDetailClient";
 
-function page() {
-  return <div>page</div>;
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function Page({ params }: PageProps) {
+  const { id } = await params;
+
+  return <WishlistDetailClient wishlistId={id} />;
 }
-
-export default page;

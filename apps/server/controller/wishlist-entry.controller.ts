@@ -3,6 +3,14 @@ import type { createWishlistEntry, updateWishlistEntry } from "../utils/type"
 import prismaClient from "../utils/prisma";
 import apiResponse from "../utils/apiResponse";
 class WishlistController {
+    // TODO: Backend implementation pending.
+    // Contract for frontend: remove user from wishlist using wishlist entry id param.
+    async removeUserFromWishlist(req: Request, res: Response) {
+        return res.status(501).json(
+            apiResponse(501, "removeUserFromWishlist is not implemented", null)
+        );
+    }
+
     async createWishlistEntry(req: Request, res: Response) {
         try {
             /*
@@ -13,7 +21,7 @@ class WishlistController {
             const data: createWishlistEntry = req.body;
             if (!data) throw new Error("Please Provide all required fields");
             if (!req.user) throw new Error("user is Not Authorized");
-            const userId = req.user.id;
+            const userId = (req.user as any).id;
             const user = await prismaClient.interviewer.findFirst({
                 where: { id: userId }
             });
@@ -48,7 +56,7 @@ class WishlistController {
             const data: updateWishlistEntry = req.body;
             if (!data) throw new Error("Please Provide all required fields");
             if (!req.user) throw new Error("user is Not Authorized");
-            const userId = req.user.id;
+            const userId = (req.user as any).id;
             const user = await prismaClient.interviewer.findFirst({
                 where: { id: userId }
             });
