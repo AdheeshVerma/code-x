@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useColors } from "@/components/General/(Color Manager)/useColors";
 import ProjectModal from "./ProjectModal";
 import ProjectCardV2 from "./ProjectCardV2";
 import { useRouter } from "next/navigation";
 import type { Project } from "@/../server/utils/type";
 import Spinner from "@/components/General/Spinner";
+import { useUserStore } from "@/store/user-store";
 
 export default function JobList() {
   const Colors = useColors();
@@ -16,6 +17,7 @@ export default function JobList() {
   const [loadedProjects, setLoadedProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const user = useUserStore();
 
   async function getUserProjectsByBatch(
     offset: number = 0,
@@ -47,7 +49,7 @@ export default function JobList() {
       setLoadedProjects(result.data);
     } catch (error) {
       console.error("Error fetching project batch:", error);
-    }
+    } 
     finally{
       setLoading(false);
     }
@@ -64,7 +66,7 @@ export default function JobList() {
   return (
     <div className={`${Colors.text.primary} font-mono h-full flex flex-col`}>
       <div className="flex items-center justify-between gap-3 mb-3">
-        <h1 className="text-2xl">John Doe's Projects</h1>
+        <h1 className="text-2xl">{user.info?.username ? `${user.info.username}'s` : "Your"} Projects</h1>
         <button
           onClick={redirectToProjects}
           className={`${Colors.text.secondary} ${Colors.properties.interactiveButton} hover:underline text-sm`}
@@ -79,7 +81,9 @@ export default function JobList() {
           <Spinner />
         </div>
       ) : !loading && loadedProjects.length === 0 ? (
-        <p className={`text-sm ${Colors.text.secondary} opacity-80`}>No projects to display.</p>
+        <p className={`text-sm ${Colors.text.secondary} opacity-80`}>
+          No projects to display.
+        </p>
       ) : (
         <div className="flex-1 overflow-y-auto pr-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 pb-1">
