@@ -312,27 +312,28 @@ class InterviewSuiteController {
 
       if (!dbUser) throw new Error("user not found");
 
-      const cachedInterviewSuite = await cacheClient.getCache(
-        `/interview-suite/company/${dbUser.orgId}`,
-      );
-      if (cachedInterviewSuite) {
-        return res
-          .status(200)
-          .json(
-            apiResponse(
-              200,
-              "interview suite fetched",
-              JSON.parse(cachedInterviewSuite),
-            ),
-          );
-      }
+      // const cachedInterviewSuite = await cacheClient.getCache(
+      //   `/interview-suite/company/${dbUser.orgId}`,
+      // );
+      // if (cachedInterviewSuite) {
+      //   return res
+      //     .status(200)
+      //     .json(
+      //       apiResponse(
+      //         200,
+      //         "interview suite fetched",
+      //         JSON.parse(cachedInterviewSuite),
+      //       ),
+      //     );
+      // }
       // TODO: add a check for interviewer vs organization
+      console.log(dbUser);
       const dbInterviewSuite = await prismaClient.interviewSuite.findMany({
         where: {
-          OR: [{ orgId: dbUser.orgId }, { orgId: dbUser.id }],
+          OR: [{ orgId: dbUser.orgId }, { creatorId: dbUser.id }],
         },
       });
-
+      console.log(dbInterviewSuite)
       await cacheClient.setCache(
         `/interview-suite/company/${dbUser.orgId}`,
         JSON.stringify(dbInterviewSuite || []),
