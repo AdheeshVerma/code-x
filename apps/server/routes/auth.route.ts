@@ -3,7 +3,7 @@ import authController from "../controller/auth.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
 import passport from "passport";
 const authRouter = Router();
-authRouter.post("/register/interviewer",authController.CreateInterviewer);
+authRouter.post("/register/interviewer", authController.CreateInterviewer);
 authRouter.post("/login/interviewer", authController.InterviewerLogin);
 authRouter.post("/register/user", authController.UserRegister);
 authRouter.post("/login/user", authController.UserLogin);
@@ -14,7 +14,7 @@ authRouter.post("/verify-otp", authController.matchVerificationOTP);
 
 authRouter.post("/reset-password", authController.resetPassword);
 
-authRouter.get("/logout",authController.Logout);
+authRouter.get("/logout", authController.Logout);
 
 // GitHub Login
 authRouter.get(
@@ -37,7 +37,7 @@ authRouter.get(
       sameSite: "lax",
     });
 
-    res.redirect("http://localhost:3000/profile");
+    res.redirect(process.env.FRONTEND_URL + "/profile");
   }
 );
 
